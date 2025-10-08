@@ -38,7 +38,7 @@ The error bars in my plot show these confidence intervals.
 
 
 *** Visualization
-[[/simple_ci_plot.png]]
+![Confidence Interval Plot](simple_ci_plot.png)
 
 *** What I Learned
 
