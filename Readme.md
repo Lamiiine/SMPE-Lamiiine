@@ -94,3 +94,43 @@ quickSort /
 📁 **Full Quicksort Exercise**: [`quickSort /`](./quickSort%20/)
 
 This folder contains all measurements, analysis scripts, visualizations, and documentation related to the parallel quicksort performance study.
+
+---
+
+# Lecture 3: Visualization and Exploratory Data Analysis
+**Date:** 09/10/25 | **Instructor:** JMV
+
+## Overview
+In this class, we explored data visualization principles and best practices for creating effective graphics in scientific communication.
+
+## Class Notes
+
+The lecture presented multiple problematic graphs to identify common visualization errors. Initial observations were easy but unstructured: decorative elements without purpose, bars hiding data, information overload, confusion between causation and correlation.
+
+Key lesson: Use the official checklist to systematically evaluate graphics across five categories:
+1. **Data** - Chart type, interpolation, confidence intervals
+2. **Graphical Objects** - Readability, colors, axes, scales
+3. **Annotations** - Labels, units, legends
+4. **Information** - Scale consistency, data density, relevance
+5. **Context** - Title, self-containment, source citation
+
+Most common failures observed:
+- Missing confidence intervals (uncertainty)
+- Unlabeled or missing axes and units
+- Inappropriate chart types (lines for categorical data)
+- Dual Y-axis creating false correlations
+- Information overload (chart junk)
+- Poor color choices (not colorblind-friendly)
+- Truncated Y-axis exaggerating differences
+
+Core principle: A good graphic should stand alone without external explanation. Every element must serve a purpose, and nothing essential should be missing. 
+
+## Resources
+- **Slides**: [What a nice picture! Data Visualization, an introduction](https://github.com/alegrand/SMPE/blob/master/sessions/2025_10_Grenoble/README.org)
+- **Checklist for good graphics**: Guidelines for evaluating and creating effective visualizations
+- **Reference**: The Art of Computer Systems Performance Analysis (similar checklist)
+
+## Exercises
+- **Good Graphics Critique**: [Criticize 4 figures using the checklist](./good%20graphics/good_graphics_exercise.md)
+- **Challenger Analysis**: [What went wrong with the Challenger data visualization](./challenger_analysis.md)
+
