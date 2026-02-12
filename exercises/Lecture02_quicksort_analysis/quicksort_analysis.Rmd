@@ -1,0 +1,116 @@
+---
+title: "QuickSort Performance Analysis - Sequential vs Parallel"
+author: "Lamine"
+date: "2025-10-08"
+output: html_document
+---
+
+## Experiment Overview
+
+I improved the original experiment by:
+
+- Increasing repetitions from 5 to 20 (for better statistical confidence)
+- Testing more array sizes: 50k, 100k, 200k, 300k, 400k, 500k, 600k, 700k, 800k, 900k, 1M
+- Calculating 95% confidence intervals using bootstrap resampling
+
+## Data Analysis
+
+```{r setup, message=FALSE, warning=FALSE}
+library(ggplot2)
+library(boot)
+```
+
+### Loading Data
+
+```{r load-data}
+# Loading the data with all array sizes (50k-1M)
+df <- read.csv("data/linuxmachine_2025-10-08/measurements_22:54.csv", 
+               header = TRUE, 
+               strip.white=TRUE)
+```
+
+### Calculating Confidence Intervals
+
+```{r calculate-stats}
+# Filter for Sequential and Parallel types
+df_filtered <- subset(df, Type =="Sequential" | Type == "Parallel")
+
+# Bootstrap function to calculate mean
+boot_mean <- function(data, indices) {
+    return(mean(data[indices]))
+}
+
+# Calculate statistics with 95% bootstrap confidence intervals
+stats <- aggregate(Time ~ Size + Type, data=df_filtered,
+                    FUN = function(x){
+                        n <- length(x)
+                        mean_x <- mean(x)
+                        
+                        # Bootstrap confidence interval
+                        boot_results <- boot(x, boot_mean, R=10000)
+                        ci <- boot.ci(boot_results, type="perc")
+                        
+                        c(mean=mean_x,
+                          lower=ci$percent[4],
+                          upper=ci$percent[5])
+                    })
+
+stats <- data.frame(
+    Size = stats$Size,
+    Type = stats$Type,
+    mean = stats$Time[,1],
+    lower = stats$Time[,2],
+    upper = stats$Time[,3]
+)
+
+print("Mean Times with 95% Confidence Intervals:")
+print(stats)
+```
+
+### Visualization
+
+```{r plot, fig.width=10, fig.height=6}
+ggplot(stats, aes(x=Size, y=mean, color=Type))+
+    geom_line() +
+    geom_point(size=3) +
+    geom_errorbar(aes(ymin=lower, ymax=upper), width=20000) +
+    labs(title="Sequential vs Parallel QuickSort with 95% Confidence Intervals",
+         x="Array Size",
+         y="Time (seconds)") +
+    theme_minimal() +
+    scale_x_continuous(labels = scales::comma)
+
+ggsave("simple_ci_plot.png", width=10, height=6)
+```
+
+## Key Findings
+
+### 1. Thread Overhead at Small Sizes
+At 50,000 elements, Parallel QuickSort (~0.052 seconds) was substantially slower than Sequential QuickSort (~0.010 seconds), confirming significant thread overhead at smaller input sizes.
+
+### 2. Crossover Point Identified at 700,000 Elements
+The data confirms a precise crossover point:
+- **At 600,000 elements**: Sequential (0.1493s) was faster than Parallel (0.1594s)
+- **At 700,000 elements**: Parallel (0.1779s) became faster than Sequential (0.1791s) ✓
+- **At 800,000 elements**: Parallel (0.1994s) maintained advantage over Sequential (0.2127s)
+
+### 3. Performance Advantage Beyond Crossover
+For array sizes above 700,000 elements, parallel implementation consistently outperforms sequential, with the gap widening as array size increases.
+
+## Lessons Learned
+
+1. **Statistical Rigor Matters**: 20 repetitions with bootstrap confidence intervals gave precise measurements to identify the exact crossover point at 700,000 elements.
+
+2. **Bootstrap for Performance Data**: Bootstrap CI is more appropriate than t-distribution because performance measurements are often not normally distributed.
+
+3. **Thread Overhead is Real**: Parallelization is NOT always faster! For arrays smaller than 700,000 elements, thread overhead dominates.
+
+4. **Practical Optimization**: Parallelization should only be applied to array sizes above 700,000 elements for this implementation.
+
+## Future Work
+
+- Investigate specific factors contributing to thread overhead (thread creation, synchronization costs) to potentially reduce the crossover point
+- Test with different thread levels to optimize performance
+- Validate findings on different hardware configurations
+
+
